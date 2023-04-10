@@ -1,0 +1,90 @@
+﻿@using Model.Entities;
+@model Employee
+
+<!-- Begin Page Content -->
+<div class="container-fluid">
+
+    <!-- Page Heading -->
+    <h1 class="h3 mb-2 text-gray-800">Create New Employee</h1>
+
+    <!-- DataTales Example -->
+    <div class="card shadow mb-4">
+        <div class="card-body">
+            <form>
+                <input type="hidden" value="@Model.ID" id="txtID" />
+                <div class="row">
+
+                    <div class="form-group col-md-4">
+                        <label>Email</label>
+                        <input class="form-control" id="txtEmail" value="@Model.Email">
+                    </div>
+                    
+                </div>
+                <div class="row">
+                    <div class="form-group col-md-2">
+                        <label>Password</label>
+                        <input class="form-control" id="txtPassword" type="password" value="@Model.Password">
+                    </div>
+                    <div class="form-group col-md-2">
+                        <label>FullName</label>
+                        <input class="form-control" id="txtFullName" value="@Model.FullName">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-group col-md-2">
+                        <label>Role</label>
+                        <select multiple class="form-control" id="txtRoles">
+                            <option >Home</option>
+                            <option >RoomType</option>
+                            <option >Room</option>
+                            <option >Booking</option>
+                            <option >Employee</option>
+                        </select>
+                        <input type="hidden" id="hdRoles" value="@Model.Roles"/>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary" id="btnSubmit">Submit</button>
+            </form>
+        </div>
+    </div>
+
+</div>
+<!-- /.container-fluid -->
+
+@section pageJs {
+    <script>
+        $(document).ready(function () {
+            var id = $('#txtID').val();
+            var roles = $('#hdRoles').val();
+
+            if (id > 0 && roles) {
+                $('#txtRoles').val(roles.split(','));
+            }
+
+            $('#btnSubmit').on('click', function (e) {
+                e.preventDefault();
+
+                var params = {
+                    ID: $('#txtID').val(),
+                    Email: $('#txtEmail').val(),
+                    Password: $('#txtPassword').val(),
+                    FullName: $('#txtFullName').val(),
+                    Roles: $('#txtRoles').val().toString(),
+                };
+
+                $.ajax({
+                    url: '/Employee/Create',
+                    type: 'post',
+                    contentType: 'application/json',
+                    data: JSON.stringify(params),
+                    success: function (res) {
+                         if (res.IsSuccess) {
+                             toastr["success"]("Save successfully!");
+                        }
+                    }
+                });
+            });
+        });
+    </script>
+}

@@ -1,0 +1,148 @@
+﻿@section pageCss {
+    <link href="/Theme/vendor/datatables/dataTables.bootstrap4.min.css" rel="stylesheet">
+}
+
+
+<!-- Begin Page Content -->
+<div class="container-fluid">
+
+    <!-- Page Heading -->
+    <h1 class="h3 mb-2 text-gray-800">List Bookings</h1>
+
+    <!-- DataTales Example -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <a href="#" class="btn btn-secondary btn-circle btn-sm" id="btnEdit">
+                <i class="fa fa-edit"></i>
+            </a>
+            <a href="#" class="btn btn-secondary btn-circle btn-sm" id="btnDelete">
+                <i class="fa fa-trash"></i>
+            </a>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>ID</th>
+                            <th>RoomType</th>
+                            <th>CheckIn</th>
+                            <th>CheckOut</th>
+                            <th>GuessName</th>
+                            <th>Email</th>
+                            <th>PhoneNo</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+</div>
+<!-- /.container-fluid -->
+
+
+@section pageJs {
+    <script src="/Theme/vendor/datatables/jquery.dataTables.min.js"></script>
+    <script src="/Theme/vendor/datatables/dataTables.bootstrap4.min.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            loadListBooking();
+
+            $('#btnEdit').on('click', function (e) {
+                e.preventDefault();
+
+                var selectedRow = window.table.row('.selected')
+                if (selectedRow && selectedRow.length > 0) {
+                    var rowID = $(selectedRow.node()).data('id');
+                    location.href = '/Booking/Create?id=' + rowID;
+                }
+                else {
+                    toastr["warning"]("Xin Hãy Chọn 1 Dòng");
+                }
+            });
+
+            $('#btnDelete').on('click', function (e) {
+                e.preventDefault();
+
+                var selectedRow = window.table.row('.selected')
+                if (selectedRow && selectedRow.length > 0) {
+                    var rowID = $(selectedRow.node()).data('id');
+                    $.ajax({
+                        url: '/Booking/Delete',
+                        type: 'post',
+                        data: { id: rowID },
+                        success: function (res) {
+                            if (res.IsSuccess) {
+                                if (res.Data > 0) {
+                                    toastr["success"]("Delete successfully");
+                                    window.table.row('.selected').remove().draw(false);
+                                }
+                                else {
+                                    toastr["warning"]("You can only delete the row which status is Cancel");
+                                }
+                            }
+                        }
+                    });
+                }
+                else {
+                    toastr["warning"]("Xin Hãy Chọn 1 Dòng");
+                }
+            });
+        });
+
+        function loadListBooking() {
+            $.ajax({
+                url: '/Booking/GetAll',
+                type: 'get',
+                success: function (res) {
+                    console.log(res);
+                    if (res.IsSuccess) {
+                        if (Array.isArray(res.Data) && res.Data.length > 0) {
+                            var bodyHtml = '';
+                            $.each(res.Data, function (index, item) {
+                                bodyHtml += `<tr data-id=` + item.ID + `>
+                                                            <td>`+ (index + 1) + `</td>
+                                                            <td>`+ item.ID + `</td>
+                                                            <td>`+ item.RoomTypeName + `</td>
+                                                            <td>`+ moment(item.CheckIn).format("DD/MM/YYYY") + `</td>
+                                                            <td>`+ moment(item.CheckOut).format("DD/MM/YYYY") + `</td>
+                                                            <td>`+ item.GuessName + `</td>
+                                                            <td>`+ item.Email + `</td>
+                                                            <td>`+ item.PhoneNo + `</td>
+                                                            <td>`+ Transformation.bookingStatus(item.Status) + `</td>
+                                                        </tr>`;
+                            });
+
+                            $('#dataTable tbody').html(bodyHtml);
+                        }
+                    }
+
+                    initdataTable('#dataTable');
+                }
+            });
+        }
+
+        function initdataTable(selector) {
+            var table = $(selector).DataTable();
+
+            $(selector).find('tbody').on('click', 'tr', function () {
+                if ($(this).hasClass('selected')) {
+                    $(this).removeClass('selected');
+                }
+                else {
+                    table.$('tr.selected').removeClass('selected');
+                    $(this).addClass('selected');
+                }
+            });
+
+            window.table = table;
+        }
+    </script>
+
+}

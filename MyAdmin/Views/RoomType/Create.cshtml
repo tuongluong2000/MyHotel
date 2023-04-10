@@ -1,0 +1,116 @@
+﻿@using Model.Entities;
+@model RoomType 
+
+<!-- Begin Page Content -->
+<div class="container-fluid">
+
+    <!-- Page Heading -->
+    <h1 class="h3 mb-2 text-gray-800">Create New RoomType</h1>
+
+    <!-- DataTales Example -->
+    <div class="card shadow mb-4">
+        <div class="card-body">
+            <form>
+                <input type="hidden" value="@Model.ID" id="txtID"/>
+                <div class="row">
+                    <div class="form-group col-md-4 required">
+                        <label>Name</label>
+                        <input class="form-control" id="txtName" value="@Model.Name">
+                    </div>
+                    <div class="form-group col-md-2 required">
+                        <label>Price</label>
+                        <input class="form-control" id="txtPrice" value="@Model.Price">
+                    </div>
+                    <div class="form-group col-md-2">
+                        <label>Size</label>
+                        <input class="form-control" id="txtSize" value="@Model.Size">
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="form-group col-md-4">
+                        <label>Capacity</label>
+                        <input class="form-control" id="txtCapacity" value="@Model.Capacity">
+                    </div>
+                    <div class="form-group col-md-4">
+                        <label>Bed</label>
+                        <input class="form-control" id="txtBed" value="@Model.Bed">
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="form-group col-md-4">
+                        <label>Services</label>
+                        <input class="form-control" id="txtServices" value="@Model.Services">
+                    </div>
+                    <div class="form-group col-md-4">
+                        <label>Image</label>
+                        <div style="display:flex">
+                            <input class="form-control" disabled id="txtImage" value="@Model.Image">
+                            <button class="btn btn-outline-secondary" id="btnSelectImage">Select</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="form-group col-md-8">
+                        <label>Description</label>
+                        <textarea class="form-control" rows="7" id="txtDescription" >@Model.Description</textarea>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary" id="btnSubmit">Submit</button>
+            </form>
+        </div>
+    </div>
+
+</div>
+<!-- /.container-fluid -->
+
+@section pageJs {
+    <script src="~/Plugins/ckfinder/ckfinder.js"></script>
+    <script>
+        $(document).ready(function () {
+             // ckfinder
+            $('#btnSelectImage').on('click', function (e) {
+                e.preventDefault();
+                var btn = this;
+                var finder = new CKFinder();
+                finder.selectActionFunction = function (url) {
+                    $('#txtImage').val(url);
+                };
+                finder.popup();
+            });
+
+            $('#btnSubmit').on('click', function (e) {
+                e.preventDefault();
+
+                var params = {
+                    ID: $('#txtID').val(),
+                    Name: $('#txtName').val(),
+                    Price: $('#txtPrice').val(),
+                    Size: $('#txtSize').val(),
+                    Capacity: $('#txtCapacity').val(),
+                    Bed: $('#txtBed').val(),
+                    Services: $('#txtServices').val(),
+                    Image: $('#txtImage').val(),
+                    Description: $('#txtDescription').val(),
+                };
+
+                $.ajax({
+                    url: '/RoomType/Create',
+                    type: 'post',
+                    contentType: 'application/json',
+                    data: JSON.stringify(params),
+                    success: function (res) {
+                        if (res.IsSuccess) {
+                             toastr["success"]("Save successfully!");
+                        }
+                    }
+                });
+            });
+
+
+        });
+    </script>
+}

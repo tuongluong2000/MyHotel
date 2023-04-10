@@ -1,0 +1,89 @@
+﻿@using Model.Entities;
+@model Room
+
+<!-- Begin Page Content -->
+<div class="container-fluid">
+
+    <!-- Page Heading -->
+    <h1 class="h3 mb-2 text-gray-800">Create New Room</h1>
+
+    <!-- DataTales Example -->
+    <div class="card shadow mb-4">
+        <div class="card-body">
+            <form>
+                <input type="hidden" value="@Model.ID" id="txtID" />
+                <div class="row">
+                    <div class="form-group col-md-4 required">
+                        <label>Type</label>
+                        <select class="form-control" id="txtType">
+                        </select>
+                    </div>
+                    <div class="form-group col-md-2 required">
+                        <label>Number</label>
+                        <input class="form-control" id="txtNumber" value="@Model.Number">
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary" id="btnSubmit">Submit</button>
+            </form>
+        </div>
+    </div>
+
+</div>
+<!-- /.container-fluid -->
+
+@section pageJs {
+    <script>
+        $(document).ready(function () {
+            loadRoomTypes(currentRoomType);
+
+            var currentRoomType = '@Model.Type';
+
+            $('#btnSubmit').on('click', function (e) {
+                e.preventDefault();
+
+                var params = {
+                    ID: $('#txtID').val(),
+                    Type: $('#txtType').val(),
+                    Number: $('#txtNumber').val(),
+                };
+
+                $.ajax({
+                    url: '/Room/Create',
+                    type: 'post',
+                    contentType: 'application/json',
+                    data: JSON.stringify(params),
+                    success: function (res) {
+                         if (res.IsSuccess) {
+                             toastr["success"]("Save successfully!");
+                        }
+                    }
+                });
+            });
+        });
+
+        function loadRoomTypes(currentRoomType) {
+            $.ajax({
+                url: '/RoomType/GetAll',
+                type: 'get',
+                success: function (res) {
+                    if (res.IsSuccess) {
+                        if (Array.isArray(res.Data) && res.Data.length > 0) {
+                            var optionsHtml = '';
+                            $.each(res.Data, function (index, item) {
+                                var selectedTag = '';
+                                if (item.Type == currentRoomType) {
+                                    selectedTag = 'selected';
+                                }
+
+                                optionsHtml += '<option value="' + item.ID + '" '+ selectedTag +'>' + item.Name + '</option>';
+                            });
+
+                            $('#txtType').html(optionsHtml);
+                        }
+                    }
+                }
+            });
+        }
+    </script>
+}
